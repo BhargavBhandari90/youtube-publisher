@@ -1,13 +1,13 @@
-import NextAuth, { NextAuthOptions, Session } from "next-auth";
-import GoogleProvider from "next-auth/providers/google";
-import { JWT } from "next-auth/jwt";
-import { Account } from "next-auth";
 
-const authOptions: NextAuthOptions = {
+import NextAuth from "next-auth"
+import GoogleProvider from "next-auth/providers/google"
+
+export const authOptions = {
+  // Configure one or more authentication providers
   providers: [
     GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      clientId: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
       authorization: {
         params: {
           access_type: "offline",
@@ -18,13 +18,7 @@ const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
-    async jwt({
-      token,
-      account,
-    }: {
-      token: JWT;
-      account?: Account | null;
-    }): Promise<JWT> {
+    async jwt({ token, account }) {
       if (account) {
         token.accessToken = account.access_token;
         token.refreshToken = account.refresh_token;
@@ -32,26 +26,15 @@ const authOptions: NextAuthOptions = {
       }
       return token;
     },
-    async session({
-      session,
-      token,
-    }: {
-      session: Session;
-      token: JWT;
-    }): Promise<Session> {
-      return {
-        ...session,
-        accessToken: token.accessToken,
-        refreshToken: token.refreshToken,
-        expiresAt: token.expiresAt,
-      } as Session & {
-        accessToken?: string;
-        refreshToken?: string;
-        expiresAt?: number;
-      };
+    async session({ session, token }) {
+      session.accessToken = token.accessToken;
+      session.refreshToken = token.refreshToken;
+      session.expiresAt = token.expiresAt;
+      return session;
     },
   },
-};
+}
 
-const handler = NextAuth(authOptions);
-export { handler as GET, handler as POST };
+const handler = NextAuth(authOptions)
+
+export { handler as GET, handler as POST }
