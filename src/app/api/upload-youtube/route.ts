@@ -1,4 +1,3 @@
-
 import { NextRequest, NextResponse } from "next/server";
 import { google } from "googleapis";
 import { getToken } from "next-auth/jwt";
@@ -6,8 +5,6 @@ import { Readable } from "stream";
 
 export async function POST(req: NextRequest) {
   const token = await getToken({ req });
-
-  console.log('token', token);
 
   if (!token || !token.accessToken) {
     return new NextResponse(JSON.stringify({ error: "Unauthorizedwwww" }), {
@@ -40,40 +37,52 @@ export async function POST(req: NextRequest) {
     videoStream.push(videoBuffer);
     videoStream.push(null); // Indicate end of stream
 
-    const res = await youtube.videos.insert({
-      part: ["snippet", "status"],
-      requestBody: {
-        snippet: {
-          title,
-          description,
-          tags,
-          categoryId: category,
+    const res = await youtube.videos.insert(
+      {
+        part: ["snippet", "status"],
+        requestBody: {
+          snippet: {
+            title,
+            description,
+            tags,
+            categoryId: category,
+          },
+          status: {
+            privacyStatus: "private", // You can change this to 'public' or 'unlisted'
+          },
         },
-        status: {
-          privacyStatus: "private", // You can change this to 'public' or 'unlisted'
+        media: {
+          mimeType: videoFile.type,
+          body: videoStream,
         },
       },
-      media: {
-        mimeType: videoFile.type,
-        body: videoStream,
-      },
-    }, {
-      onUploadProgress: (evt) => {
-        const progress = (evt.bytesRead / evt.bytesTotal) * 100;
-        // You can log progress here or send it back to the client if needed
-        console.log(`Upload progress: ${progress.toFixed(2)}%`);
-      },
-    });
+      {
+        onUploadProgress: (evt) => {
+          const progress = (evt.bytesRead / evt.bytesTotal) * 100;
+          // You can log progress here or send it back to the client if needed
+          console.log(`Upload progress: ${progress.toFixed(2)}%`);
+        },
+      }
+    );
 
-    return new NextResponse(JSON.stringify({ message: "Video uploaded successfully", videoId: res.data.id }), {
-      status: 200,
-      headers: { "Content-Type": "application/json" },
-    });
+    return new NextResponse(
+      JSON.stringify({
+        message: "Video uploaded successfully",
+        videoId: res.data.id,
+      }),
+      {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
   } catch (error) {
     console.error("YouTube upload error:", error);
-    return new NextResponse(JSON.stringify({ error: "Failed to upload video" }), {
-      status: 500,
-      headers: { "Content-Type": "application/json" },
-    });
+    return new NextResponse(
+      JSON.stringify({ error: "Failed to upload video" }),
+      {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
   }
 }

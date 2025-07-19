@@ -3,3 +3,8 @@
 button {
   cursor: pointer;
 }
+
+.yt-publisher-btn svg {
+  height: auto;
+  width: auto;
+}
