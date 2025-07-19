@@ -1,9 +1,9 @@
+import NextAuth, { NextAuthOptions, Session } from "next-auth";
+import GoogleProvider from "next-auth/providers/google";
+import { JWT } from "next-auth/jwt";
+import { Account } from "next-auth";
 
-import NextAuth from "next-auth"
-import GoogleProvider from "next-auth/providers/google"
-
-const authOptions = {
-  // Configure one or more authentication providers
+const authOptions: NextAuthOptions = {
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
@@ -18,7 +18,13 @@ const authOptions = {
     }),
   ],
   callbacks: {
-    async jwt({ token, account }) {
+    async jwt({
+      token,
+      account,
+    }: {
+      token: JWT;
+      account?: Account | null;
+    }): Promise<JWT> {
       if (account) {
         token.accessToken = account.access_token;
         token.refreshToken = account.refresh_token;
@@ -26,15 +32,26 @@ const authOptions = {
       }
       return token;
     },
-    async session({ session, token }) {
-      session.accessToken = token.accessToken;
-      session.refreshToken = token.refreshToken;
-      session.expiresAt = token.expiresAt;
-      return session;
+    async session({
+      session,
+      token,
+    }: {
+      session: Session;
+      token: JWT;
+    }): Promise<Session> {
+      return {
+        ...session,
+        accessToken: token.accessToken,
+        refreshToken: token.refreshToken,
+        expiresAt: token.expiresAt,
+      } as Session & {
+        accessToken?: string;
+        refreshToken?: string;
+        expiresAt?: number;
+      };
     },
   },
-}
+};
 
-const handler = NextAuth(authOptions)
-
-export { handler as GET, handler as POST }
+const handler = NextAuth(authOptions);
+export { handler as GET, handler as POST };
