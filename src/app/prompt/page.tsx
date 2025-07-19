@@ -50,23 +50,16 @@ export default function PromptPage() {
     try {
       const res = await fetch("/api/generate", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ prompt }),
       })
       const data = await res.json()
       if (res.ok) {
         setResponse(data)
-        // Try to find a matching category ID
         const matchedCategory = youtubeCategories.find(
           (cat) => cat.snippet.title.toLowerCase() === data.category.toLowerCase()
         )
-        if (matchedCategory) {
-          setSelectedCategoryId(matchedCategory.id)
-        } else {
-          setSelectedCategoryId("") // Reset if no match
-        }
+        setSelectedCategoryId(matchedCategory?.id || "")
       } else {
         setError(data.error || "Failed to generate AI response.")
       }
@@ -77,16 +70,8 @@ export default function PromptPage() {
   }
 
   const handleUpload = async () => {
-    if (!videoFile) {
-      alert("Please select a video file to upload.")
-      return
-    }
-    if (!response || !response.title || !response.description || !response.tags) {
-      alert("Please generate AI metadata first.")
-      return
-    }
-    if (!selectedCategoryId) {
-      alert("Please select a YouTube category.")
+    if (!videoFile || !response || !response.title || !selectedCategoryId) {
+      alert("Please fill all required fields before uploading.")
       return
     }
 
@@ -107,8 +92,7 @@ export default function PromptPage() {
 
       xhr.upload.onprogress = (event) => {
         if (event.lengthComputable) {
-          const percentComplete = (event.loaded / event.total) * 100
-          setUploadProgress(percentComplete)
+          setUploadProgress((event.loaded / event.total) * 100)
         }
       }
 
@@ -116,12 +100,7 @@ export default function PromptPage() {
         setUploading(false)
         if (xhr.status === 200) {
           alert("Video uploaded successfully!")
-          setUploadProgress(0)
-          setVideoFile(null)
-          setVideoPreview(null)
-          setPrompt("")
-          setResponse(null)
-          setSelectedCategoryId("")
+          resetForm()
         } else {
           const errorData = JSON.parse(xhr.responseText)
           setError(errorData.error || "Failed to upload video.")
@@ -136,70 +115,102 @@ export default function PromptPage() {
       xhr.send(formData)
     } catch (err) {
       setUploading(false)
-      setError("An unexpected error occurred during upload.")
+      setError("Unexpected error during upload.")
       console.error(err)
     }
   }
 
+  const resetForm = () => {
+    setUploadProgress(0)
+    setVideoFile(null)
+    setVideoPreview(null)
+    setPrompt("")
+    setResponse(null)
+    setSelectedCategoryId("")
+  }
+
   return (
-    <div>
-      <h1>AI Prompt & YouTube Upload</h1>
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label htmlFor="video-upload">Upload Video (.mp4):</label>
-          <input
-            type="file"
-            id="video-upload"
-            accept="video/mp4"
-            onChange={handleFileChange}
-          />
-        </div>
-        {videoPreview && (
+      <div className="max-w-4xl mx-auto space-y-8">
+        <h1 className="text-3xl md:text-4xl font-bold text-center">AI Metadata Generator & YouTube Uploader</h1>
+
+        <form onSubmit={handleSubmit} className="space-y-6 bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
           <div>
-            <h2>Video Preview</h2>
-            <video src={videoPreview} controls width="400" />
+            <label htmlFor="video-upload" className="font-semibold">Upload Video (.mp4):</label>
+            <input
+              type="file"
+              id="video-upload"
+              accept="video/mp4"
+              onChange={handleFileChange}
+              className="block mt-2"
+            />
+          </div>
+
+          {videoPreview && (
+            <div>
+              <video src={videoPreview} controls className="w-full max-w-md rounded-md border mt-4" />
+            </div>
+          )}
+
+          <div>
+            <textarea
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+              placeholder="Enter your video idea..."
+              rows={5}
+              className="w-full p-4 rounded-md border dark:bg-gray-700"
+            />
+          </div>
+
+          <button
+            type="submit"
+            disabled={uploading}
+            className="w-full py-3 text-lg font-semibold bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
+          >
+            Generate Metadata
+          </button>
+        </form>
+
+        {response && (
+          <div className="space-y-4 bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
+            <h2 className="text-xl font-semibold">Generated Metadata</h2>
+            <pre className="whitespace-pre-wrap bg-gray-100 dark:bg-gray-700 p-4 rounded-md">
+              {JSON.stringify(response, null, 2)}
+            </pre>
+
+            <div>
+              <label htmlFor="youtube-category" className="font-semibold">YouTube Category:</label>
+              <select
+                id="youtube-category"
+                value={selectedCategoryId}
+                onChange={(e) => setSelectedCategoryId(e.target.value)}
+                className="block w-full mt-2 p-2 border rounded-md dark:bg-gray-700"
+              >
+                <option value="">Select a category</option>
+                {youtubeCategories.map((cat) => (
+                  <option key={cat.id} value={cat.id}>
+                    {cat.snippet.title}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <button
+              onClick={handleUpload}
+              disabled={uploading || !videoFile || !selectedCategoryId}
+              className="w-full py-3 text-lg font-semibold bg-green-600 text-white rounded-md hover:bg-green-700 transition"
+            >
+              {uploading ? `Uploading... ${uploadProgress.toFixed(2)}%` : "Upload to YouTube"}
+            </button>
+
+            {uploading && (
+              <div className="text-sm mt-2">
+                Progress: {uploadProgress.toFixed(2)}%
+              </div>
+            )}
           </div>
         )}
-        <textarea
-          value={prompt}
-          onChange={(e) => setPrompt(e.target.value)}
-          placeholder="Enter your video idea"
-          rows={5}
-          cols={50}
-        />
-        <button type="submit" disabled={uploading}>Generate Metadata</button>
-      </form>
 
-      {response && (
-        <div>
-          <h2>AI Generated Metadata</h2>
-          <pre>{JSON.stringify(response, null, 2)}</pre>
-
-          <div>
-            <label htmlFor="youtube-category">YouTube Category:</label>
-            <select
-              id="youtube-category"
-              value={selectedCategoryId}
-              onChange={(e) => setSelectedCategoryId(e.target.value)}
-              disabled={youtubeCategories.length === 0}
-            >
-              <option value="">Select a category</option>
-              {youtubeCategories.map((cat) => (
-                <option key={cat.id} value={cat.id}>
-                  {cat.snippet.title}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <button onClick={handleUpload} disabled={uploading || !videoFile || !selectedCategoryId}>
-            {uploading ? `Uploading... ${uploadProgress.toFixed(2)}%` : "Upload to YouTube"}
-          </button>
-          {uploading && <p>Upload Progress: {uploadProgress.toFixed(2)}%</p>}
-        </div>
-      )}
-
-      {error && <p style={{ color: "red" }}>Error: {error}</p>}
-    </div>
+        {error && <p className="text-red-500 font-medium text-center">Error: {error}</p>}
+      </div>
   )
 }
