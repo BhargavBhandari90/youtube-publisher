@@ -15,11 +15,6 @@ export default function Home() {
           repeat={0}
         />
       </h1>
-
-      <p className="text-lg sm:text-xl text-gray-600 dark:text-gray-300">
-        Authenticate with Google and upload your videos directly from this app.
-      </p>
-
       <div className="mt-4">
         <div className="inline-block">
           <LoginButton />

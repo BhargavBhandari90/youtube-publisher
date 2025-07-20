@@ -1,8 +1,8 @@
 
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { google } from "googleapis";
 
-export async function GET(req: NextRequest) {
+export async function GET() {
   try {
     const youtube = google.youtube({
       version: "v3",
@@ -11,7 +11,7 @@ export async function GET(req: NextRequest) {
 
     const res = await youtube.videoCategories.list({
       part: ["snippet"],
-      regionCode: "US", // You might want to make this configurable
+      regionCode: "US",
     });
 
     return new NextResponse(JSON.stringify(res.data.items), {

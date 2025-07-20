@@ -3,23 +3,37 @@
 import { useSession, signIn, signOut } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { IconBrandGoogleFilled } from "@tabler/icons-react";
+import Link from "next/link";
 
 export default function LoginButton() {
   const { data: session } = useSession();
   if (session) {
     return (
-      <div className="center-wrapper">
-        <div className="box">
-          Signed in as {session.user.email}
-          <br />
+      <div className="bg-gray-800 text-white shadow-lg rounded-xl p-6 max-w-md mx-auto mt-8 border text-center">
+        <p className="text-lg">Signed in as</p>
+        <p className="text-xl font-semibold mb-6">
+          {session?.user?.email}
+        </p>
+
+        <div className="flex flex-col sm:flex-row justify-center gap-4">
           <Button
             variant="outline"
-            className="google-btn"
-            size="sm"
+            className="border-gray-300 hover:bg-gray-500"
+            size="lg"
             onClick={() => signOut()}
           >
-            Sign out
+            Logout
           </Button>
+
+          <Link href="/prompt" passHref>
+            <Button
+              variant="default"
+              className="bg-blue-600 text-white hover:bg-blue-700"
+              size="lg"
+            >
+              Publish Your Video
+            </Button>
+          </Link>
         </div>
       </div>
     );

@@ -30,6 +30,13 @@ Prompt: ${prompt}
             contents: fullPrompt,
         });
 
+        if (!response || !response.text) {
+            return new NextResponse(
+                JSON.stringify({ error: "No response from Gemini" }),
+                { status: 500, headers: { "Content-Type": "application/json" } }
+            );
+        }
+
         return NextResponse.json(JSON.parse(response.text));
     } catch (error) {
         console.error(error);
