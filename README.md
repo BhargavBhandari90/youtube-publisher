@@ -2,6 +2,10 @@
 
 This is a Next.js app that helps you generate SEO-optimized metadata (title, description, tags, category) for a YouTube video using AI, and then upload the video directly to your YouTube channel.
 
+## Demo
+https://github.com/user-attachments/assets/4c82b474-096a-4428-b2c7-ebb07946c363
+
+
 
 ## 🚀 Features
 
