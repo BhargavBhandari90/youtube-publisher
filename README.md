@@ -59,9 +59,9 @@ https://www.googleapis.com/auth/youtube.force-ssl
 ## Required Setup
 
 1. Setup a Google OAuth app at: https://console.cloud.google.com/apis/credentials
-2. Enable YouTube Data API v3
+2. Enable YouTube Data API v3 at: https://console.cloud.google.com/apis/library
 3. Add http://localhost:3000 as an authorized redirect URI
-4. Get your Gemini AI API Key
+4. Get your Gemini AI API Key at here: https://aistudio.google.com/app/apikey
 
 ## 🙌 Credits
 
