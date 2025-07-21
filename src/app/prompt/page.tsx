@@ -11,6 +11,8 @@ import {
 } from "@tabler/icons-react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import PublishSuccessBanner from "../components/PublishSuccessBanner";
+import SuccessPopup from "../components/SuccessPopup";
 
 export default function PromptPage() {
   type YouTubeCategory = {
@@ -41,15 +43,18 @@ export default function PromptPage() {
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [videoPreview, setVideoPreview] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [uploadedToYT, setUploadedToYT] = useState(false);
   const [generating, setGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [youtubeCategories, setYoutubeCategories] = useState<YouTubeCategory[]>([]);
+  const [youtubeCategories, setYoutubeCategories] = useState<YouTubeCategory[]>(
+    []
+  );
   const [selectedCategoryId, setSelectedCategoryId] = useState("");
   const [isDragActive, setIsDragActive] = useState(false);
 
   const dropRef = useRef(null);
 
-  console.log('prompt', prompt);
+  console.log("prompt", prompt);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -165,7 +170,7 @@ export default function PromptPage() {
       xhr.onload = () => {
         setUploading(false);
         if (xhr.status === 200) {
-          alert("Video uploaded successfully!");
+          setUploadedToYT(true);
           resetForm();
         } else {
           const errorData = JSON.parse(xhr.responseText);
@@ -344,6 +349,12 @@ export default function PromptPage() {
 
       {error && (
         <p className="text-red-500 font-medium text-center">Error: {error}</p>
+      )}
+      {uploadedToYT && (
+        <>
+          <SuccessPopup show={uploadedToYT} onClose={() => setUploadedToYT(false)} />
+          <PublishSuccessBanner />
+        </>
       )}
     </div>
   );
