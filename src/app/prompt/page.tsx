@@ -9,6 +9,8 @@ import {
   IconUpload,
   IconCloudUp,
 } from "@tabler/icons-react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 export default function PromptPage() {
   type YouTubeCategory = {
@@ -25,6 +27,15 @@ export default function PromptPage() {
     category?: string;
   };
 
+  const { data: session, status } = useSession();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!session && status === "unauthenticated") {
+      router.push("/");
+    }
+  }, [status, router, session]);
+
   const [prompt, setPrompt] = useState("");
   const [response, setResponse] = useState<VideoMetadata | null>(null);
   const [videoFile, setVideoFile] = useState<File | null>(null);
@@ -37,6 +48,8 @@ export default function PromptPage() {
   const [isDragActive, setIsDragActive] = useState(false);
 
   const dropRef = useRef(null);
+
+  console.log('prompt', prompt);
 
   useEffect(() => {
     const fetchCategories = async () => {
