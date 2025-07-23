@@ -11,9 +11,21 @@ export async function POST(req: NextRequest) {
 
 Given the following YouTube video prompt, generate:
 
-- 1 optimized title
-- 1 compelling description (up to 500 characters, no hashtags)
-- A list of 15 relevant tags (no # symbol)
+- 1 optimized and eyecatching title
+- 1 compelling description (up to 500 characters, with hashtags)
+- Add following links at the end of the description:
+======================
+Links:
+======================
+
+Buy me a Beer/Coffee: https://buymeacoffee.com/wpbunty
+Twitter: https://twitter.com/BuntyWP
+Instagram: https://www.instagram.com/buntywp/
+Hire Me: https://biliplugins.com/hire-us/
+======================
+- A list of 20 relevant tags (no # symbol)
+- Add the following tags to the list:
+buntywp, bhargav, bhargav bhandari, indian youtuber
 - A YouTube category
 
 Respond ONLY with valid JSON (no markdown or \`\`\`json), like this:{

@@ -161,12 +161,6 @@ export default function PromptPage() {
       const xhr = new XMLHttpRequest();
       xhr.open("POST", "/api/upload-youtube", true);
 
-      // xhr.upload.onprogress = (event) => {
-      //   if (event.lengthComputable) {
-      //     setUploadProgress((event.loaded / event.total) * 100);
-      //   }
-      // };
-
       xhr.onload = () => {
         setUploading(false);
         if (xhr.status === 200) {
