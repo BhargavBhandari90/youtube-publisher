@@ -26,7 +26,7 @@ export default function LoginButton() {
             Logout
           </Button>
 
-          <Link href="/prompt" passHref>
+          <Link href="/large-files" passHref>
             <Button
               variant="default"
               className="bg-blue-600 text-white hover:bg-blue-700"
@@ -43,7 +43,7 @@ export default function LoginButton() {
     <Button
       variant="outline"
       className="flex items-center gap-3 px-8 py-4 text-lg font-semibold bg-white text-black rounded-lg shadow-md hover:bg-gray-100 transition-all"
-      onClick={() => signIn("google", { callbackUrl: "/prompt" })}
+      onClick={() => signIn("google", { callbackUrl: "/large-files" })}
     >
       <IconBrandGoogleFilled size={48} /> Sign in with Google
     </Button>
